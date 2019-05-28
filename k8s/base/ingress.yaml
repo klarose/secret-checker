@@ -1,0 +1,23 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt
+    ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  name: ingress-secret-checker
+spec:
+  rules:
+    - host: secret-checker.kyle.agilicus.dev
+      http:
+        paths:
+          - backend:
+              serviceName: secret-checker
+              servicePort: 5000
+            path: /
+  tls:
+    - hosts:
+        - secret-checker.kyle.agilicus.dev
+      secretName: secret-checker-tls

@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secret-checker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secret-checker
+  template:
+    metadata:
+      labels:
+        deployment: secret-checker
+        app: secret-checker
+    spec:
+      containers:
+        - name: secret-checker
+          image: kmlarose/secret-checker
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+              name: http
+          env:
+            - name: SECRET_VALUE
+              valueFrom:
+                secretKeyRef:
+                  name: secret-checker
+                  key: secret-value
+          readinessProbe:
+            httpGet:
+              path: /check/health
+              port: 5000
+              scheme: HTTP
+          livenessProbe:
+            httpGet:
+              path: /check/health
+              port: 5000
+              scheme: HTTP
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - all
